@@ -1,5 +1,6 @@
 from bet import Bet
 from betXML import BetXML
+from betFullStats import BetFullStats
 
 sumStat = {
     'Win'     : 0,
@@ -20,15 +21,23 @@ countryStats ={
     'Stats'   : sumStat
 }
 
+
 class BetStats :
     def __init__(self):
         self.countryList=[] #список стран
         self.betXML=BetXML()
+        self.betFullStats=BetFullStats()
         for bet in self.betXML.betList:
             self.__addBet(bet)
+            self.betFullStats.processBet(bet)
         self.__sortListByName()
         self.__calcPlaces()
         self.print()
+        self.betFullStats.setTourneyCount(len(self.tourneyList))
+        self.betFullStats.setCountryCount(len(self.countryList))
+        print(self.betFullStats.firstDate)
+        print(self.betFullStats.lastDate)
+
     def __tourneyIndex(self, country , tourneyName: str):
         tourneyIndex=-1
         index=0
@@ -39,7 +48,7 @@ class BetStats :
                 index+=1
         return tourneyIndex
 
-    def __addToCountryStats(self,bet: Bet):
+    def __addToStats(self,bet: Bet):
         countryIndex = self._сountryIndex(bet.country)
         if countryIndex==-1:
             country=dict(Name=bet.country, Stats=dict(Win=0, Loose=0, Cash=0, Place=0, BetList=[]), Tourney=[])
@@ -69,7 +78,7 @@ class BetStats :
             #print(mytourneyList)
 
     def __addBet(self,bet : Bet):
-        self.__addToCountryStats(bet)
+        self.__addToStats(bet)
 
     def __calcPlaces(self):
         def getTourneyFromName(countryName,tourneyName):
@@ -89,8 +98,6 @@ class BetStats :
             tekCountry['Stats']['Place']=index
             index+=1
         print(self.tourneyList[0])
-        #ttttouurney=getTourneyFromName(self.tourneyList[0]['Country'],self.tourneyList[0]['Name'])
-        #ttttouurney['Stats']['Place']=self.tourneyList[0]['Place']
         self.tourneyList.sort(key=lambda tourneyList: tourneyList['Cash'])
         self.tourneyList.reverse()
         index=1
@@ -118,8 +125,8 @@ class BetStats :
         print('tourney count = ',len(self.tourneyList))
         # tourney in self.tourneyList:
         #    print(tourney)
-        for tekCountry in self.countryList:
-            print('')
-            for key,value in tekCountry.items():
-                print('{} = {}'.format(key,value))
+        #for tekCountry in self.countryList:
+        #    print('')
+        #    for key,value in tekCountry.items():
+        #        print('{} = {}'.format(key,value))
 
