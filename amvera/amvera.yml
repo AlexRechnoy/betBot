@@ -4,4 +4,4 @@ meta:
     name: pip
 
 run:
-  scriptName: main.py
+  command: python3 main.py
