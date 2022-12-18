@@ -35,8 +35,9 @@ class BetStats :
         self.print()
         self.betFullStats.setTourneyCount(len(self.tourneyList))
         self.betFullStats.setCountryCount(len(self.countryList))
-        print(self.betFullStats.firstDate)
-        print(self.betFullStats.lastDate)
+        #print('Всего={} В={} П={} %={:.2f}'.format(self.betFullStats.betCount,self.betFullStats.win,self.betFullStats.loose,self.betFullStats.winpercent))
+        #print(self.betFullStats.firstDate)
+        #print(self.betFullStats.lastDate)
 
     def __tourneyIndex(self, country , tourneyName: str):
         tourneyIndex=-1
@@ -78,9 +79,19 @@ class BetStats :
             #print(mytourneyList)
 
     def __addBet(self,bet : Bet):
+        """
+        Функция добавления ставки к статистике
+        :param bet:
+        :return:
+        """
         self.__addToStats(bet)
 
     def __calcPlaces(self):
+        """
+        -упорядочивание списка countryList по выигрышу
+        -создание списка tourneyList (отдельный список турниров) и упорядочивание его по выигрышу
+        :return:
+        """
         def getTourneyFromName(countryName,tourneyName):
             for tekCountry in self.countryList:
                 if tekCountry['Name'].lower()==countryName.lower():
@@ -94,20 +105,17 @@ class BetStats :
         index = 1
         for tekCountry in self.countryList:
             for tekTourney in tekCountry['Tourney']:
-                self.tourneyList.append(dict(Country=tekCountry['Name'], Name=tekTourney['Name'], Cash=tekTourney['Stats']['Cash']))
+                self.tourneyList.append(dict(Country=tekCountry['Name'], Tourney=tekTourney))
             tekCountry['Stats']['Place']=index
             index+=1
-        print(self.tourneyList[0])
-        self.tourneyList.sort(key=lambda tourneyList: tourneyList['Cash'])
+        self.tourneyList.sort(key=lambda tourneyList: tourneyList['Tourney']['Stats']['Cash'])
         self.tourneyList.reverse()
+        print(self.tourneyList[0])
         index=1
         for tekTourney in self.tourneyList:
-            #print(tekTourney)
-            findTourney=getTourneyFromName(tekTourney['Country'],tekTourney['Name'])
+            findTourney=getTourneyFromName(tekTourney['Country'],tekTourney['Tourney']['Name'])
             findTourney['Stats']['Place']=index
             index+=1
-
-
 
     def _сountryIndex(self, countryName: str):
         countryIndex = -1
@@ -122,7 +130,7 @@ class BetStats :
     def print(self):
         #self.__calcPlaces()
         print('*')
-        print('tourney count = ',len(self.tourneyList))
+        #print('tourney count = ',len(self.tourneyList))
         # tourney in self.tourneyList:
         #    print(tourney)
         #for tekCountry in self.countryList:

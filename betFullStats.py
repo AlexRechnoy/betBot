@@ -26,4 +26,5 @@ class BetFullStats:
         self.win   += int(float(bet.cash) > 0)
         self.loose += int(float(bet.cash) <= 0)
         self.cash  += float(bet.cash)
+        self.winpercent=self.win/self.betCount*100
         self.lastDate=bet.date
