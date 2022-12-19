@@ -9,16 +9,6 @@ def  myfunc(s,*args, test=10, **kwargs):
 
 
 async def cmd_help(message: types.Message):
-    await message.reply('*Я могу ответить на следующие команды:\n*'
-                        '/top10C (топ 10 стран)\n'
-                        '/top20T (топ 20 турниров)\n'
-                        '/top50T (топ 50 турниров)\n',
+    await message.reply('*Я помогу в статистике турниров! \n*'
+                        'Чтобы получить статистику по стране напиши мне ее название!',
                          parse_mode='Markdown')
-
-async def cmd_top10C(message: types.Message):
-    await message.reply('*Я могу ответить на следующие команды:\n*'
-                        '/top10C (топ 10 стран)\n'
-                        '/top20T (топ 20 турниров)\n'
-                        '/top50T (топ 50 турниров)\n',
-                        parse_mode='Markdown')
-#await bot.send_message(message.from_user.id, betData.getTopCountries(10), parse_mode="Markdown")

@@ -16,7 +16,7 @@ class BetFullStats:
         self.tourneyCount=tourneyCount
 
     def setCountryCount(self, countryCount):
-        self.tourneyCount = countryCount
+        self.countryCount = countryCount
 
     def processBet (self,bet:Bet):
         if self.__firstBet:

@@ -60,6 +60,20 @@ class BetData (BetStats):
             str+='\n'+tekstr
         return str
 
+    def getStats(self):
+        strList,str=[],''
+        strList.append('Выигрыш : {:.2f} тыс. руб.'.format(self.betFullStats.cash))
+        strList.append('Всего ставок : {}'.format(self.betFullStats.betCount))
+        strList.append('Всего стран/турнир. : {}/{}'.format(self.betFullStats.countryCount,self.betFullStats.tourneyCount))
+        strList.append('Выигрыши/поражения : {}/{}'.format(self.betFullStats.win,self.betFullStats.loose))
+        strList.append('Процент побед : {:.2f}%'.format(self.betFullStats.winpercent))
+        strList.append('Первая ставка : {}'.format(self.betFullStats.firstDate))
+        strList.append('Последняя ставка : {}'.format(self.betFullStats.lastDate))
+        for tekstr in strList:
+            str += '\n' + tekstr
+        return str
+
+
     def getTopCountries(self, topCount):
         """
         Функция возвращает лучшие страны

@@ -1,5 +1,6 @@
 from aiogram import Bot, Dispatcher, executor, types
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from botKeyboard import botInlineKbd
 from betData import BetData
 from botCommands import cmd_help,myfunc
 import config
@@ -22,23 +23,31 @@ dp.register_message_handler(cmd_help, custom_filters=(None), commands="help", re
                                  state=None, run_task=None)
 #dp.register_message_handler(cmd_top10C, commands="top10C",myBetData=betData, myBotData=bot)
 
-@dp.message_handler(commands=['top10C'])
-async def cmd_top10C(message: types.Message):
-    await bot.send_message(message.from_user.id, betData.getTopCountries(10), parse_mode="Markdown")
+@dp.callback_query_handler(text="stats")
+async def cmd_top10C(call: types.CallbackQuery):
+    await call.message.answer(betData.getStats(), parse_mode="Markdown",reply_markup=botInlineKbd)
+    await call.answer()
 
-@dp.message_handler(commands=['top20T'])
-async def cmd_top10C(message: types.Message):
-    await bot.send_message(message.from_user.id, betData.getTopTourneys(20), parse_mode="Markdown")
+@dp.callback_query_handler(text="topCountry")
+async def cmd_top10C(call: types.CallbackQuery):
+    await call.message.answer(betData.getTopCountries(10), parse_mode="Markdown",reply_markup=botInlineKbd)
+    await call.answer()
 
-@dp.message_handler(commands=['top50T'])
-async def cmd_top10C(message: types.Message):
-    await bot.send_message(message.from_user.id, betData.getTopTourneys(50), parse_mode="Markdown")
+@dp.callback_query_handler(text="top20Tourney")
+async def cmd_top20T(call: types.CallbackQuery):
+    await call.message.answer(betData.getTopTourneys(20), parse_mode="Markdown",reply_markup=botInlineKbd)
+    await call.answer()
 
-
+@dp.callback_query_handler(text="top50Tourney")
+async def cmd_top50T(call: types.CallbackQuery):
+    await call.message.answer(betData.getTopTourneys(50), parse_mode="Markdown",reply_markup=botInlineKbd)
+    await call.answer()
 
 @dp.message_handler()
 async def echo(message: types.Message):
     await bot.send_message(message.from_user.id,betData.getCountryStats(message.text),parse_mode="Markdown")
+    await message.answer("Дополнительная статистика :  ", reply_markup=botInlineKbd)
+
 
 if __name__ == '__main__':
     parser = createParser()
