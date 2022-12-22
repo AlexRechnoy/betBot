@@ -1,12 +1,12 @@
 from betStats import BetStats
 
 class BetData (BetStats):
-    def __getStatStr(self,stats):
+    def __getStatStr(self,stats,lastCount=5):
         Place = stats['Place']
         Cash = stats['Cash']
         Win = stats['Win']
         Loose = stats['Loose']
-        Last = stats['BetList'][-5:]
+        Last = stats['BetList'][-lastCount:]
         Last.reverse()
         Percent = Win / (Win + Loose) * 100
         return Cash, Win, Loose, Last, Percent, Place
@@ -34,18 +34,25 @@ class BetData (BetStats):
         :param countryName: название страны, для которой будет осуществлен поиск статистики
         :return:возвращает список строк, который содержит в себе статистику страны countryName и всех турниров, относящихся к ней
         """
+        def valToIcons(valList : list):
+            iconStr=''
+            for val in valList :
+                if float(val)>0:
+                    iconStr+='\U00002705'
+                else:
+                    iconStr+='\U0000274C'
+            return iconStr
         countryIndex=self._сountryIndex(countryName)
         strList = []
-        print('countryIndex = ',countryIndex)
         if countryIndex==-1:
             return '*Такая страна не найдена !!!*'
+        #страна
         country=self.countryList[countryIndex]
-        print('country = ', country)
         strList.append('*'+country['Name']+'*')
-        Cash,Win,Loose,Last,Percent, Place=self.__getStatStr(country['Stats'])
+        Cash, Win, Loose, Last, Percent, Place=self.__getStatStr(country['Stats'],15)
         strList.append('_Выигр ={:.2f} Место={} из {}_'.format(Cash,Place,len(self.countryList)))
-        strList.append('_В={} П={} %={:.2f} Послед.={}_'.format(Win, Loose, Percent, Last))
-        #
+        strList.append('_В={} П={}  %={:.2f} {} _'.format(Win, Loose, Percent, valToIcons(Last)))
+        #турниры
         tourneyList=country['Tourney']
         tourneyList.sort(key=lambda tourneyList: tourneyList['Stats']['Cash'])
         tourneyList.reverse()
@@ -53,8 +60,7 @@ class BetData (BetStats):
         for tourney in tourneyList:
             Cash, Win, Loose, Last, Percent, Place = self.__getStatStr(tourney['Stats'])
             strList.append('*{}* Выигр ={:.2f} Место={} из {}'.format(tourney['Name'],Cash, Place, len(self.tourneyList)))
-            strList.append('В={} П={} %={:.2f} Послед.={}'.format(Win, Loose, Percent,Last))
-
+            strList.append('В={} П={} %={:.2f} {}'.format(Win, Loose, Percent,valToIcons(Last)))
         str=''
         for tekstr in strList :
             str+='\n'+tekstr
@@ -62,13 +68,17 @@ class BetData (BetStats):
 
     def getStats(self):
         strList,str=[],''
+        dayCount = (self.betFullStats.lastDate - self.betFullStats.firstDate).days
         strList.append('Выигрыш : {:.2f} тыс. руб.'.format(self.betFullStats.cash))
+        strList.append('Выигрыш за месяц: {:.0f} руб.'.format(self.betFullStats.cash*1000/dayCount*30))
+        strList.append('Выигрыш за 1 cтавку  : {:.2f} руб.'.format(self.betFullStats.cash * 1000 / self.betFullStats.betCount))
         strList.append('Всего ставок : {}'.format(self.betFullStats.betCount))
         strList.append('Всего стран/турнир. : {}/{}'.format(self.betFullStats.countryCount,self.betFullStats.tourneyCount))
         strList.append('Выигрыши/поражения : {}/{}'.format(self.betFullStats.win,self.betFullStats.loose))
         strList.append('Процент побед : {:.2f}%'.format(self.betFullStats.winpercent))
         strList.append('Первая ставка : {}'.format(self.betFullStats.firstDate))
         strList.append('Последняя ставка : {}'.format(self.betFullStats.lastDate))
+        strList.append('Кол-во дней : {}'.format(dayCount))
         for tekstr in strList:
             str += '\n' + tekstr
         return str
