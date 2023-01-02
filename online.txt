@@ -1,0 +1,37 @@
+  "~AA": "MwwvrWwc",+
+  "AD": "1672682400",+
+  "ADE": "1672682400",+
+  "AB": "2",+
+  "CR": "2",+
+  "AC": "13",+
+  "CX": "Монпелье",
+  "RW": "0",
+  "AI": "y",
+  "AX": "1",
+  "AO": "1672686238",
+  "BX": "",
+  "WL": "",+
+  "WQ": "",+
+  "WM": "МОН",+
+  "AE": "Монпелье",+
+  "FH": "Монпелье",+
+  "JA": "G4cIYdtr",+
+  "GRA": "0",+
+  "AG": "0",+
+  "BA": "0",+
+  "BC": "0",+
+  "OA": "ANGNZlQq-pdwCIN9T.png",+
+  "WN": "МАР",+
+  "AF": "Марсель",+
+  "FK": "Марсель",+
+  "JB": "fedMXGel",+
+  "GRB": "0",+
+  "AH": "2",+
+  "BB": "0",+
+  "BD": "2",+
+  "OB": "t6Kb5X76-Qk1sBuEM.png", +
+  "AL": "{\"1\":[{\"TVI\":772,\"BU\":\"https:\\/\\/www.setantaeurasia.com\\/ru\\/\",\"BN\":\"Setanta Sports Eurasia\"}],\"2\":[{\"BU\":\"\\/bookmaker\\/471\\/?from=live-streaming&sport=1\",\"IU\":\"\\/res\\/image\\/data\\/bookmakers\\/17-471.png\",\"BN\":\"1xBet.kz\",\"BI\":471},{\"BU\":\"\\/bookmaker\\/16\\/?from=live-streaming&sport=1\",\"IU\":\"\\/res\\/image\\/data\\/bookmakers\\/17-16.png\",\"BN\":\"bet365\",\"BI\":16,\"BT\":\"GEO restrictions apply. Funded account required or to have placed a bet in the last 24 hours. GamblingTherapy.org. 18+\"},{\"BU\":\"\\/bookmaker\\/454\\/?from=live-streaming&sport=1\",\"IU\":\"\\/res\\/image\\/data\\/bookmakers\\/17-454.png\",\"BN\":\"Winline\",\"BI\":454}]}",
+  "BGS": "{\"FR\":[141]}",
+  "AW": "1", +
+  "AN": "y",
+  "MW": "471|454|16"

@@ -35,6 +35,8 @@ class BetStats :
         self.print()
         self.betFullStats.setTourneyCount(len(self.tourneyList))
         self.betFullStats.setCountryCount(len(self.countryList))
+        for year in self.betFullStats.yearList:
+            print(year)
         #print('Всего={} В={} П={} %={:.2f}'.format(self.betFullStats.betCount,self.betFullStats.win,self.betFullStats.loose,self.betFullStats.winpercent))
         #print(self.betFullStats.firstDate)
         #print(self.betFullStats.lastDate)

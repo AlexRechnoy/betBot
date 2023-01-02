@@ -1,4 +1,6 @@
 from betStats import BetStats
+from flashScoreParse import fsParse
+from datetime import datetime
 
 class BetData (BetStats):
     def __getStatStr(self,stats,lastCount=5):
@@ -69,20 +71,68 @@ class BetData (BetStats):
     def getStats(self):
         strList,str=[],''
         dayCount = (self.betFullStats.lastDate - self.betFullStats.firstDate).days
-        strList.append('Выигрыш : {:.2f} тыс. руб.'.format(self.betFullStats.cash))
-        strList.append('Выигрыш за месяц: {:.0f} руб.'.format(self.betFullStats.cash*1000/dayCount*30))
-        strList.append('Выигрыш за 1 cтавку  : {:.2f} руб.'.format(self.betFullStats.cash * 1000 / self.betFullStats.betCount))
-        strList.append('Всего ставок : {}'.format(self.betFullStats.betCount))
-        strList.append('Всего стран/турнир. : {}/{}'.format(self.betFullStats.countryCount,self.betFullStats.tourneyCount))
-        strList.append('Выигрыши/поражения : {}/{}'.format(self.betFullStats.win,self.betFullStats.loose))
-        strList.append('Процент побед : {:.2f}%'.format(self.betFullStats.winpercent))
-        strList.append('Первая ставка : {}'.format(self.betFullStats.firstDate))
-        strList.append('Последняя ставка : {}'.format(self.betFullStats.lastDate))
-        strList.append('Кол-во дней : {}'.format(dayCount))
+        strList.append('*Выигрыш* : {:.2f} тыс. руб.'.format(self.betFullStats.cash))
+        strList.append('*Выигрыш за месяц*: {:.0f} руб.'.format(self.betFullStats.cash*1000/dayCount*30))
+        strList.append('*Выигрыш за 1 cтавку*  : {:.2f} руб.'.format(self.betFullStats.cash * 1000 / self.betFullStats.betCount))
+        strList.append('*Выигрыши по годам* : ')
+        for yearStat in self.betFullStats.yearList:
+            strList.append(' *{}* {:.2f}тыс. р., {}, {:.2f}%'.format(yearStat['year'],yearStat['cash'],yearStat['win']+yearStat['loose'],
+                                                             yearStat['win']/(yearStat['win']+yearStat['loose'])*100))
+        strList.append('*Всего ставок* : {}'.format(self.betFullStats.betCount))
+        strList.append('*Всего стран/турнир.* : {}/{}'.format(self.betFullStats.countryCount,self.betFullStats.tourneyCount))
+        strList.append('*Выигрыши/поражения* : {}/{}'.format(self.betFullStats.win,self.betFullStats.loose))
+        strList.append('*Процент побед* : {:.2f}%'.format(self.betFullStats.winpercent))
+        strList.append('*Первая ставка* : {}'.format(self.betFullStats.firstDate))
+        strList.append('*Последняя ставка* : {}'.format(self.betFullStats.lastDate))
+        strList.append('*Кол-во дней* : {}'.format(dayCount))
         for tekstr in strList:
             str += '\n' + tekstr
         return str
 
+    def getOnlimeGames(self):
+        def minOrBreak(startPeriod,startGame):
+            dPeriodTime=startPeriod-startGame
+            gameTime=datetime.now()-startPeriod
+            if dPeriodTime.total_seconds()<1800:
+                min = int(gameTime.total_seconds() // 60)
+                return '{}\' мин'.format(min)
+            elif dPeriodTime.total_seconds()>3300:
+                min =45+ int(gameTime.total_seconds() // 60)
+                return '{}\' мин'.format(min)
+            else:
+                return 'Перерыв'
+        def isCorrectGame(game : dict):
+            dtime = datetime.now() - game['startdate']
+            timeFilter=(dtime.total_seconds() > 0) and (dtime.total_seconds() < 4500)
+            #goalFilter=(game['score1']==0) and (game['score2']==0)
+            goalFilter=True
+            if timeFilter and goalFilter :
+                return True
+            else:
+                return False
+
+
+        fs_data = fsParse()
+        strList = ['*Всего матчей за сегодня : {} *'.format(len(fs_data))]
+        gameCount=0
+        for game in fs_data :
+            if isCorrectGame(game) :
+                gameCount+=1
+                findCountry=False
+                for tekstr in strList :
+                    if tekstr.find(game['country'])>=0:
+                        findCountry=True
+                if not findCountry:
+                    strList.append('*{}*'.format(game['country']))
+                #
+                strList.append('{} {}. {} {}. {} {} - {} {}'.format(game['startdate'].strftime('%H:%M'),game['startperiod'].strftime('%H:%M'),
+                                                                 minOrBreak(game['startperiod'],game['startdate']),
+                                                                 game['tourney'],game['team1'],game['score1'],game['score2'],game['team2']))
+        strList.insert(1,'*Матчей онлайн : {}*'.format(gameCount))
+        str=''
+        for tekstr in strList:
+            str += '\n' + tekstr
+        return str,gameCount
 
     def getTopCountries(self, topCount):
         """
