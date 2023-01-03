@@ -8,6 +8,6 @@ myChatID = 1082319898
 
 async def get_online_matches(dp: Dispatcher, betData: BetData):
     onlineGamesData,gameCount=betData.getOnlimeGames()
-    await dp.bot.send_message(myChatID,datetime.now().strftime('%H:%M'))
+    print(datetime.now().strftime('%H:%M'))
     if gameCount>0:
         await dp.bot.send_message(myChatID, onlineGamesData, parse_mode="Markdown", reply_markup=botInlineKbd)

@@ -23,7 +23,7 @@ myfunc('sd',args=(5,15),mybetData=betData, check='ddd')
 dp.register_message_handler(cmd_help, custom_filters=(None), commands="help")
 #
 scheduler = AsyncIOScheduler()
-scheduler.add_job(get_online_matches, "interval", minutes=5, args=(dp,betData))
+scheduler.add_job(get_online_matches, "interval", seconds=5, args=(dp,betData))
 
 
 @dp.callback_query_handler(text="stats")
