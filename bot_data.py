@@ -1,8 +1,14 @@
 from betStats import BetStats
-from flashScoreParse import fsParse
-from datetime import datetime
+from flashScoreParse import fsDataToStr
+from parse_1xstavka import _1xstavkaDataToStr
 
-class BetData (BetStats):
+maxSymbolsInMessage = 4000
+
+class BotData(BetStats):
+    def __init__(self):
+        super().__init__()
+        self.onlineCountryList=[] #списко стран, в которых играются матчи в данный момент
+
     def __getStatStr(self,stats,lastCount=5):
         Place = stats['Place']
         Cash = stats['Cash']
@@ -44,10 +50,10 @@ class BetData (BetStats):
                 else:
                     iconStr+='\U0000274C'
             return iconStr
-        countryIndex=self._сountryIndex(countryName)
+        countryIndex=self._getCountryIndex(countryName)
         strList = []
         if countryIndex==-1:
-            return '*Такая страна не найдена !!!*'
+            return '*"{}" - такая страна не найдена !!!*'.format(countryName)
         #страна
         country=self.countryList[countryIndex]
         strList.append('*'+country['Name']+'*')
@@ -61,11 +67,16 @@ class BetData (BetStats):
         strList.append('*Турниры : *')
         for tourney in tourneyList:
             Cash, Win, Loose, Last, Percent, Place = self.__getStatStr(tourney['Stats'])
+            if Win==0:
+                koef=1
+            else:
+                koef=1+(Loose/Win)
             strList.append('*{}* Выигр ={:.2f} Место={} из {}'.format(tourney['Name'],Cash, Place, len(self.tourneyList)))
-            strList.append('В={} П={} %={:.2f} {}'.format(Win, Loose, Percent,valToIcons(Last)))
+            strList.append('В={} П={} k={:.3f} {}'.format(Win, Loose, koef,valToIcons(Last)))
         str=''
         for tekstr in strList :
-            str+='\n'+tekstr
+            if len(str+'\n'+tekstr)<maxSymbolsInMessage:
+                str+='\n'+tekstr
         return str
 
     def getStats(self):
@@ -82,57 +93,30 @@ class BetData (BetStats):
         strList.append('*Всего стран/турнир.* : {}/{}'.format(self.betFullStats.countryCount,self.betFullStats.tourneyCount))
         strList.append('*Выигрыши/поражения* : {}/{}'.format(self.betFullStats.win,self.betFullStats.loose))
         strList.append('*Процент побед* : {:.2f}%'.format(self.betFullStats.winpercent))
+        strList.append('*Кол-во максимумов* : {}'.format(self.betFullStats.maximumCount))
         strList.append('*Первая ставка* : {}'.format(self.betFullStats.firstDate))
+        strList.append('*Последний максимум* : {}'.format(self.betFullStats.maximumDate))
         strList.append('*Последняя ставка* : {}'.format(self.betFullStats.lastDate))
         strList.append('*Кол-во дней* : {}'.format(dayCount))
         for tekstr in strList:
             str += '\n' + tekstr
         return str
 
-    def getOnlimeGames(self):
-        def minOrBreak(startPeriod,startGame):
-            dPeriodTime=startPeriod-startGame
-            gameTime=datetime.now()-startPeriod
-            if dPeriodTime.total_seconds()<1800:
-                min = int(gameTime.total_seconds() // 60)
-                return '{}\' мин'.format(min)
-            elif dPeriodTime.total_seconds()>3300:
-                min =45+ int(gameTime.total_seconds() // 60)
-                return '{}\' мин'.format(min)
-            else:
-                return 'Перерыв'
-        def isCorrectGame(game : dict):
-            dtime = datetime.now() - game['startdate']
-            timeFilter=(dtime.total_seconds() > 0) and (dtime.total_seconds() < 4500)
-            #goalFilter=(game['score1']==0) and (game['score2']==0)
-            goalFilter=True
-            if timeFilter and goalFilter :
-                return True
-            else:
-                return False
+    def getOnlineFlashScoreGames(self):
+        commandTxt,self.onlineCountryList,onlineGameCount =  fsDataToStr()
+        return commandTxt,onlineGameCount
 
+    def getOnline1XstavkaGames(self):
+        commandTxt,self.onlineCountryList,onlineGameCount = _1xstavkaDataToStr()
+        print('gameCount = ',onlineGameCount)
+        return commandTxt,onlineGameCount
 
-        fs_data = fsParse()
-        strList = ['*Всего матчей за сегодня : {} *'.format(len(fs_data))]
-        gameCount=0
-        for game in fs_data :
-            if isCorrectGame(game) :
-                gameCount+=1
-                findCountry=False
-                for tekstr in strList :
-                    if tekstr.find(game['country'])>=0:
-                        findCountry=True
-                if not findCountry:
-                    strList.append('*{}*'.format(game['country']))
-                #
-                strList.append('{} {}. {} {}. {} {} - {} {}'.format(game['startdate'].strftime('%H:%M'),game['startperiod'].strftime('%H:%M'),
-                                                                 minOrBreak(game['startperiod'],game['startdate']),
-                                                                 game['tourney'],game['team1'],game['score1'],game['score2'],game['team2']))
-        strList.insert(1,'*Матчей онлайн : {}*'.format(gameCount))
-        str=''
-        for tekstr in strList:
-            str += '\n' + tekstr
-        return str,gameCount
+    def getOnlineStats(self):
+        strList=[]
+        #commandTxt, self.onlineCountryList, onlineGameCount = fsDataToStr()
+        for country in self.onlineCountryList:
+            strList.append(self.getCountryStats(country.lower()))
+        return strList
 
     def getTopCountries(self, topCount):
         """
@@ -155,3 +139,5 @@ class BetData (BetStats):
             str += s
             index += 1
         return str
+
+botData=BotData()

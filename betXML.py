@@ -2,7 +2,7 @@ import xml.etree.ElementTree as xml
 import xml.etree.cElementTree as ET
 from bet import Bet
 
-xml_file='T1M_BetDay.xml'
+xml_file='data/T1M_BetDay.xml'
 
 class BetXML:
     def __init__(self):

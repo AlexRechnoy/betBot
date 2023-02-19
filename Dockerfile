@@ -1,10 +1,4 @@
-FROM ubuntu
-RUN apt-get update
-RUN export DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y tzdata=2018d-1
-RUN ln -fs /usr/share/zoneinfo/Europe/Moscow /etc/localtime 
-RUN dpkg-reconfigure -f noninteractive tzdata
-
+	
 FROM python:3.9
 # установка рабочей директории в контейнере
 WORKDIR /code
@@ -14,6 +8,9 @@ COPY requirements.txt .
 # установка зависимостей
 RUN pip install -r requirements.txt
 
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY . ./
 CMD [ "python", "./main.py" ]
+

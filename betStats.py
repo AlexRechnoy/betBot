@@ -1,6 +1,7 @@
 from bet import Bet
 from betXML import BetXML
 from betFullStats import BetFullStats
+from blockCountries import blockCountryList
 
 sumStat = {
     'Win'     : 0,
@@ -25,18 +26,18 @@ countryStats ={
 class BetStats :
     def __init__(self):
         self.countryList=[] #список стран
-        self.betXML=BetXML()
-        self.betFullStats=BetFullStats()
+        self.betXML=BetXML() #список ставок из XML
+        #self.blockCountries=blockCountryList # список стран, игры которых не будут отображаться а онлайн
+        #print(self.blockCountries)
+        self.betFullStats=BetFullStats() #статистика по ставкам
         for bet in self.betXML.betList:
             self.__addBet(bet)
             self.betFullStats.processBet(bet)
         self.__sortListByName()
         self.__calcPlaces()
-        self.print()
+        #self.print()
         self.betFullStats.setTourneyCount(len(self.tourneyList))
         self.betFullStats.setCountryCount(len(self.countryList))
-        for year in self.betFullStats.yearList:
-            print(year)
         #print('Всего={} В={} П={} %={:.2f}'.format(self.betFullStats.betCount,self.betFullStats.win,self.betFullStats.loose,self.betFullStats.winpercent))
         #print(self.betFullStats.firstDate)
         #print(self.betFullStats.lastDate)
@@ -52,7 +53,7 @@ class BetStats :
         return tourneyIndex
 
     def __addToStats(self,bet: Bet):
-        countryIndex = self._сountryIndex(bet.country)
+        countryIndex = self.__getСountryIndexMatch(bet.country)
         if countryIndex==-1:
             country=dict(Name=bet.country, Stats=dict(Win=0, Loose=0, Cash=0, Place=0, BetList=[]), Tourney=[])
             self.countryList.append(country)
@@ -112,15 +113,31 @@ class BetStats :
             index+=1
         self.tourneyList.sort(key=lambda tourneyList: tourneyList['Tourney']['Stats']['Cash'])
         self.tourneyList.reverse()
-        print(self.tourneyList[0])
         index=1
         for tekTourney in self.tourneyList:
             findTourney=getTourneyFromName(tekTourney['Country'],tekTourney['Tourney']['Name'])
             findTourney['Stats']['Place']=index
             index+=1
 
-    def _сountryIndex(self, countryName: str):
-        countryIndex = -1
+
+    def __getСountryIndexMatch(self, countryName: str):
+        '''Поиск по полному названию, если такую страну нашли, то возвращаем ее индекс в списке self.countryList'''
+        countryIndex,index = -1,0
+        for country in self.countryList:
+            if countryName.lower() == country['Name'].lower():
+                countryIndex = index
+                break
+            index+=1
+        return countryIndex
+
+
+    def _getCountryIndex(self, countryName: str):
+        '''Сначала ищем полное совпадение, потом частичное'''
+        if countryName.lower()=='южная африка':
+            countryName='юар'
+        countryIndex=self.__getСountryIndexMatch(countryName)
+        if countryIndex!=-1:
+            return countryIndex
         index = 0
         for country in self.countryList:
             if countryName.lower() in country['Name'].lower():
@@ -131,7 +148,7 @@ class BetStats :
 
     def print(self):
         #self.__calcPlaces()
-        print('*')
+        pass
         #print('tourney count = ',len(self.tourneyList))
         # tourney in self.tourneyList:
         #    print(tourney)

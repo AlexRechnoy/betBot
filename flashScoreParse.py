@@ -1,6 +1,7 @@
 import requests
 import json
 from datetime import datetime
+from flashScoreFuncs import addNewCountry, addNewTourney, addGame, isCorrectGame
 
 def fsParse():
     '''
@@ -40,8 +41,10 @@ def fsParse():
             team2 =element["AF"]
             score1=element.get("AG")
             score2=element.get("AH")
-            dtime= datetime.now()-startDate
-            #if (dtime.total_seconds()>0) and (dtime.total_seconds()<6500):
+            isPlaying = (element.get("AI")!=None)
+            isBreak   = (isPlaying and element.get("BX")=='-1')
+            #dtime= datetime.now()-startDate
+            #if (dtime.total_seconds()>0) and (dtime.total_seconds()<3500):
                 #min=int(dtime.total_seconds()//60)
                 #sec=int(dtime.total_seconds()%60)
                 #print(country, tourney, startDate, min,sec , team1, score1, score2,  team2)
@@ -52,5 +55,45 @@ def fsParse():
                 startperiod=datetime.fromtimestamp(int(element["AO"]))
                 #print(startperiod)
             match_list.append({'country': country, 'tourney': tourney, 'startdate': startDate, 'startperiod': startperiod,
-                               'team1': team1, 'score1': score1,'team2': team2,'score2': score2})
+                               'team1': team1, 'score1': score1,'team2': team2,'score2': score2, 'isbreak': isBreak, 'isplaying': isPlaying})
     return match_list
+
+def getFsData():
+    '''
+    :return: Список матчей, которые удовлетворяют условиям отбора
+    '''
+    fsRawData = fsParse() #cписок всех матчей
+    gamesDayCount=len(fsRawData)
+    filter_data = []
+    for game in fsRawData:
+        if isCorrectGame(game):
+            filter_data.append(game)
+    return filter_data,gamesDayCount
+
+def fsDataToStr():
+    '''
+    :return: Приводим данные к текстовому сообщению
+    '''
+    gamesData,gamesDayCount = getFsData()
+    myoutlist = ['*Всего матчей за сегодня : {} *'.format(gamesDayCount)]
+    myoutlist.append('*Матчей онлайн : {}*'.format(len(gamesData)))
+    countryList=[]
+    for index in range(len(gamesData)):
+        if index == 0:
+            dataList = addNewCountry(gamesData[index])
+            countryList.append(gamesData[index]['country'])
+        else:
+            if gamesData[index - 1]['country'] != gamesData[index]['country']:  # изменилась страна
+                dataList = addNewCountry(gamesData[index])
+                countryList.append(gamesData[index]['country'])
+            elif gamesData[index - 1]['tourney'] != gamesData[index]['tourney']:
+                dataList = addNewTourney(gamesData[index])
+            else:
+                dataList = addGame(gamesData[index])
+        for str in dataList:
+            myoutlist.append(str)
+    str = ''
+    for tekstr in myoutlist:
+        print(tekstr)
+        str += '\n' + tekstr
+    return str,countryList, len(gamesData)
