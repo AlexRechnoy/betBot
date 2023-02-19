@@ -23,7 +23,7 @@ dp.register_callback_query_handler(callback_top50T, text="top50Tourney")
 dp.register_message_handler(message_any)
 #по таймеру :
 scheduler = AsyncIOScheduler()
-scheduler.add_job(get_online_matches, "interval", minutes =1, args=[dp])
+scheduler.add_job(get_online_matches, "interval", minutes =5, args=[dp])
 
 
 if __name__ == '__main__':
