@@ -31,11 +31,11 @@ def getTM(homeTeam ,awayTeam ,gameData):
         gameDict={}
     return gameDict
 
-def getTourneyGames(result):
+def getTourneyGames(tourneyData):
     '''Возвращает список словарей из параметров игр, относящихся к данному турниру'''
     gamesData=[]
     gameIndex=0
-    for game in result['Value']:
+    for game in tourneyData['Value']:
         gameIndex+=1
         ok=all(map(game.__contains__,('O1','O2')))    # ('O1' in game.keys()) and ('O2' in game.keys())
         if not ok :
@@ -63,13 +63,16 @@ def getTourneyGames(result):
         response = requests.get('https://1xstavka.ru/LiveFeed/GetGameZip', params=params)
         gameDict=getTM(homeTeam,awayTeam,response.json())
         if len(gameDict)>0 :
-            gamesData.append(gameDict)
+            if 'альтернатив' not in gameDict['tourney'].lower():
+                print(gameDict)
+                gamesData.append(gameDict)
     return gamesData
 
 def tourneyFilter(name : str):
-    filerlist=['женщ','2x2','3x3','4x4','5x5','indoor','short','испан','австр','итал','швейцар','уругв','азер','швец','косово',
-               'исланд', 'дани','англ','франц','бельг','нидерл','израил','португал','товарищеские','шотл',
-               'герман','дуэль','уефа','альтер']
+    filerlist=['женщ','2x2','3x3','4x4','5x5','7x7','indoor','short','испан','австр','итал','швейцар','уругв','азер',
+               'швец','косово','португа','исланд', 'дани','англ','франц','бельг','нидерл','израил','португал',
+               'гватемал','росси',
+               'товарищеские','шотл','финлян','турци','казах','герман','дуэль','уефа','альтер','league']
     for filterElem in filerlist :
         if filterElem.lower() in name.lower():
             return False

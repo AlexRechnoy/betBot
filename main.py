@@ -7,6 +7,8 @@ from botCommands import cmd_help,callback_stats,callback_online_stats,callback_t
 from bot_data import botData
 import argparse
 
+from _1xstavka_funcs import tourneyFilter
+
 
 
 def createParser():

@@ -5,10 +5,10 @@ from _1xstavka_funcs import getTourneyGames,tourneyFilter
 from datetime import datetime
 
 def _1xstavkaParse():
-    def proccessTourney(champID):
+    def proccessTourney(tourneyID):
         params = {
             'sports': '1',
-            'champs': champID,
+            'champs': tourneyID,
             'count': '50',
             'antisports': '188',
             'mode': '4',
@@ -18,8 +18,12 @@ def _1xstavkaParse():
             'noFilterBlockEvent': 'true',
         }
         response = requests.get('https://1xstavka.ru/LiveFeed/Get1x2_VZip', params=params)
-        result = response.json()
-        return getTourneyGames(result)
+        try:
+            tourneyData = response.json()
+        except:
+            print('Ошибка!!! Некорректные данные json =(')
+            return []
+        return getTourneyGames(tourneyData)
 
 
     def getTourneys():
@@ -47,7 +51,9 @@ def _1xstavkaParse():
     ################################################  Основной код !!!!  ###############################################
     ####################################################################################################################
     ####################################################################################################################
+    print('---------------_1xstavkaParse = start !!!---------------')
     tourneyList = getTourneys()
+    print(f'Всего турниров (до фильтра) : {len(tourneyList)}')
     tourneyListFilter={key: val for key, val in tourneyList.items() if tourneyFilter(str(val).lower())}
     print(f'Всего турниров : {len(tourneyListFilter)}')
 
@@ -55,7 +61,7 @@ def _1xstavkaParse():
     gamesData=[] #cписок ,cостоящий из списков словарей (которые описывают статистику турниров)
     start_time = time.time()
     for tourneyID in tourneyListFilter.keys():
-        #print(f'{index}) champID = {tourneyID} name = "{tourneyListFilter[tourneyID]}"')
+        print(f'{index}) champID = {tourneyID} name = "{tourneyListFilter[tourneyID]}"')
         gamesData.append(proccessTourney(tourneyID))
         #if index>10 :
         #    break
@@ -80,13 +86,15 @@ def _1xstavkaParse():
                 countryDict[countryName]={tourneyName:[game]}
 
     #распечатать
-    #for county in countryDict :
-    #    print(f'{county} : ')
-    #    for tourney in countryDict[county]:
-    #        print(f'  {tourney}')
-    #        for game in countryDict[county][tourney]:
-    #            print(f'    {game}')
+    for county in countryDict :
+        print(f'{county} : ')
+        for tourney in countryDict[county]:
+            print(f'  {tourney}')
+            for game in countryDict[county][tourney]:
+                print(f'    {game}')
+    print('---------------_1xstavkaParse = end !!!---------------')
     return countryDict,gameCount
+
 
 def _1xstavkaDataToStr():
     def gameToStr(game : dict):
@@ -102,7 +110,8 @@ def _1xstavkaDataToStr():
             timeStr=f'{game["gameTime"]}мин . '
         return  f'  {game["gamePeriod"]}. {timeStr}{game["homeTeam"]} {game["homeGoals"]} - {game["awayGoals"]} {game["awayTeam"]}.\n *{koefStr}*'
 
-
+    print('------------------------------------------------------')
+    print('---------------_1xstavkaDataToStr start---------------')
     countryDict,gameCount=_1xstavkaParse()
     outstrlist=[f'*Всего матчей онлайн : {gameCount}*']
     countrylist=[]
@@ -113,10 +122,12 @@ def _1xstavkaDataToStr():
         for tourney in countryDict[county]:
             outstrlist.append(f'*{tourney}*')
             for game in countryDict[county][tourney]:
+                print(gameToStr(game))
                 outstrlist.append(gameToStr(game))
     str=''
     for tekstr in outstrlist:
         str += '\n' + tekstr
+    print('---------------_1xstavkaDataToStr end---------------')
     return str,countrylist,gameCount
 
 #'country': country, 'tourney':tourney,'homeTeam':homeTeam,'homeGoals':homegoals,

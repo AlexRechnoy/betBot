@@ -107,8 +107,12 @@ class BotData(BetStats):
         return commandTxt,onlineGameCount
 
     def getOnline1XstavkaGames(self):
+        print('')
+        print('========= getOnline1XstavkaGames start =========')
         commandTxt,self.onlineCountryList,onlineGameCount = _1xstavkaDataToStr()
-        print('gameCount = ',onlineGameCount)
+        print('Command text : ')
+        print(commandTxt)
+        print('========= getOnline1XstavkaGames end =========')
         return commandTxt,onlineGameCount
 
     def getOnlineStats(self):
